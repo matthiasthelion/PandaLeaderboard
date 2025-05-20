@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bảng kết quả</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f2f0;
+            margin: 0;
+            padding: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #8e2323;
+        }
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .header p {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 0;
+        }
+        .honor-table {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            border-collapse: separate;
+            border-spacing: 0;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .honor-table th {
+            background: linear-gradient(135deg, #8e2323 0%, #c12e2e 100%);
+            color: white;
+            padding: 18px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .honor-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #f0e0dd;
+            position: relative;
+        }
+        .honor-table tr:nth-child(even) {
+            background-color: #fff9f9;
+        }
+        .honor-table tr:hover {
+            background-color: #fdf0ef;
+        }
+        .gold::before, .silver::before, .bronze::before {
+            content: "";
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            vertical-align: middle;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .gold::before {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="%23FFD700"/><path fill="%23FFC000" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z"/><circle cx="12" cy="12" r="6" fill="%23FFEE99"/></svg>');
+        }
+        .silver::before {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="%23C0C0C0"/><path fill="%23A0A0A0" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z"/><circle cx="12" cy="12" r="6" fill="%23E0E0E0"/></svg>');
+        }
+        .bronze::before {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="%23CD7F32"/><path fill="%23B87333" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z"/><circle cx="12" cy="12" r="6" fill="%23E19D65"/></svg>');
+        }
+        .gold { color: #b8860b; font-weight: bold; }
+        .silver { color: #808080; font-weight: bold; }
+        .bronze { color: #cd7f32; font-weight: bold; }
+        .top-3-row {
+            background-color: #fff0f0 !important;
+            border-left: 4px solid #8e2323;
+        }
+        .percent {
+            font-weight: 600;
+            color: #8e2323;
+        }
+        .error-message {
+            color: #c12e2e;
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Bảng kết quả bài làm</h1>
+        <p id="subtitle">Dr Henry English House</p>
+    </div>
+
+    <div id="table-container"></div>
+
+    <script>
+        // Hàm giải mã URL parameter
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+            const results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        // Hàm tạo bảng từ dữ liệu và sắp xếp theo Tích lũy
+        function renderTable(data) {
+            /*
+            if (!data) {
+                document.getElementById('table-container').innerHTML = 
+                    '<div class="error-message">Không có dữ liệu hiển thị. Vui lòng truyền dữ liệu qua URL parameter ?data=</div>';
+                return;
+            }*/
+
+            try {
+                const apiURL='https://sheets.googleapis.com/v4/spreadsheets/1rHTPzsPTu6Dj_EbM-9hCi6aPolQ2jEdKmTU2WlScDNc/values/LB?alt=json&key=AIzaSyA6HNtdv0sKdpXRsZ554tU4WrKgESplqVo';
+                fetch(apiURL, {method: 'GET'})
+                    .then(response => response.text()) // hoặc .json() nếu trả về JSON
+                    .then(data => {
+                        const info = JSON.parse(data).values;
+                        //const qrContent = info.data.qrCode;
+                        console.log(info);
+                        let tableHTML = `
+                            <table class="honor-table">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên</th>
+                                        <th>Điểm số</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                        info.forEach((row, index) => {
+                            const rankClass = index === 0 ? 'gold' : 
+                                            index === 1 ? 'silver' : 
+                                            index === 2 ? 'bronze' : '';
+                            const isTop3 = index < 3 ? 'top-3-row' : '';
+
+                            tableHTML += `
+                                <tr class="${isTop3}">
+                                    <td>${row[0] || ''}</td>
+                                    <td style="text-align: left;">${row[1] || ''}</td>
+                                    <td>${row[2] || ''}</td>
+                                </tr>`;
+                        });
+
+                        tableHTML += `</tbody></table>`;
+                        document.getElementById('table-container').innerHTML = tableHTML;
+                    })
+                    .catch(error => console.error("Lỗi:", error));
+                
+
+                
+
+            } catch (error) {
+                document.getElementById('table-container').innerHTML = 
+                    `<div class="error-message">Lỗi hiển thị dữ liệu: ${error.message}<br>Dữ liệu nhận được: ${data}</div>`;
+            }
+        }
+
+        // Lấy dữ liệu từ URL và render bảng
+        const dataParam = getParameterByName('data');
+        renderTable(dataParam);
+    </script>
+</body>
+</html>
+
