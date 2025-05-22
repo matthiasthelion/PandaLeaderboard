@@ -107,7 +107,7 @@
 <body>
     <div class="header">
         <h1>Bảng kết quả bài làm</h1>
-        <p id="subtitle">Dr Henry English House</p>
+        <p id="subtitle">Dr Henry English House<br>Nhiệm vụ: <span id="taskname"></span></p>
     </div>
 
     <div id="table-container"></div>
@@ -135,6 +135,7 @@
 
             try {
                 const apiURL='https://sheets.googleapis.com/v4/spreadsheets/1rHTPzsPTu6Dj_EbM-9hCi6aPolQ2jEdKmTU2WlScDNc/values/LB?alt=json&key=AIzaSyA6HNtdv0sKdpXRsZ554tU4WrKgESplqVo';
+                const contestAPI='https://sheets.googleapis.com/v4/spreadsheets/1rHTPzsPTu6Dj_EbM-9hCi6aPolQ2jEdKmTU2WlScDNc/values/LB?alt=json&key=AIzaSyA6HNtdv0sKdpXRsZ554tU4WrKgESplqVo&range=Input!B3';
                 fetch(apiURL, {method: 'GET'})
                     .then(response => response.text()) // hoặc .json() nếu trả về JSON
                     .then(data => {
@@ -168,9 +169,21 @@
 
                         tableHTML += `</tbody></table>`;
                         document.getElementById('table-container').innerHTML = tableHTML;
+                        
                     })
                     .catch(error => console.error("Lỗi:", error));
-                
+                fetch(contestAPI, {method: 'GET'})
+                    .then(response => response.text()) // hoặc .json() nếu trả về JSON
+                    .then(data => {
+                        const info = JSON.parse(data).values;
+                        //const qrContent = info.data.qrCode;
+                        var taskname = '';
+                        info.forEach((row, index) => {
+                            taskname = row[0];
+                        });
+                        document.getElementById('taskname').innerHTML = taskname;
+                    })
+                    .catch(error => console.error("Lỗi:", error));
 
                 
 
