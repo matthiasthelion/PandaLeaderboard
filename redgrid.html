@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Toast Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    html {
+    height: 100%;
+    width: 100%;
+    }
+
+    body {
+        background: #f9f2f0;
+        /*background: linear-gradient(-47deg, #39b54b 0%, #1b7ebe 100%);*/
+        background: linear-gradient(135deg, #8e2323 0%, #c12e2e 100%);
+        height: 100%;
+        width: 100%;
+    }
+
+    .input-group-text {
+        padding: .375rem 0.2rem .375rem 1.2rem;
+        border-radius: 4rem;
+        background-color: #fff;
+        border: none;
+    }
+
+    .form-control {
+        height: calc(2em + 1rem + 2px);
+        border-radius: 4rem;
+        border: none;
+        line-height: 1;
+        padding-right: 20px;
+    }
+
+    .btn-trans {
+        background-color: #f9a51a;
+        color: #ffffff;
+        padding: .7rem .75rem;
+        border-radius: 4rem;
+    }
+
+    .btn-secondary {
+        background-color: #1b7ebe;
+        color: #ffffff;
+        border: none;
+        padding: .2rem .5rem;
+        border-radius: .5rem;
+    }
+
+    .btn {
+        background-color: #f9a51a;
+        color: #ffffff;
+        padding: .2rem .75rem;
+        border-radius: 2rem;
+    }
+
+    .btn:hover{
+        background-color: #1b7ebe
+    }
+
+    body .loading-panel {
+        display: none;
+    }
+
+    body.loading .loading-panel {
+        position: fixed;
+        display: table;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    namebox{
+        position: relative;
+        margin-left: auto; 
+        margin-right: 0;
+        width: 100%;
+    }
+
+    body.loading .loading-panel .loading-container {
+        display: table-cell;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        vertical-align: middle;
+        color: #ffffff;
+    }
+    .room-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .property-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(1fr, 1fr));
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .room-box {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px;
+        color: white;
+        text-align: center;
+        min-height: 50px;
+        display: flex;
+        justify-content: space-between; /* Hoặc center nếu muốn ô vuông */
+        align-items: center;
+        text-align: center;
+    }
+
+    .single-property {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px;
+        color: white;
+        text-align: center;
+        min-height: 50px;
+        display: flex;
+        justify-content: space-between; /* Hoặc center nếu muốn ô vuông */
+        align-items: center;
+        text-align: center;
+    }
+
+    /*
+    .room-status {
+        font-size: 0.9em;
+    }
+    */
+    .room-ok {
+        color: #155724;
+    }
+    .room-not-ok {
+        color: #f8d7da;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    .btn-access {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .btn-access:hover {
+        background-color: #0056b3;
+    }
+    .table, 
+    .table td, 
+    .table th, 
+    .table-bordered,
+    .table-bordered td, 
+    .table-bordered th {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+
+    h2 {
+        color: white !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        text-align: center;
+    }
+    .room-label{
+        color: white !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        text-align: right;
+    }
+    .big-icon {
+        font-size: 2em;
+        line-height: 1;
+    }
+  </style>
+
+</head>
+<body class="bg-dark text-white">
+
+  <div class="container text-center mt-5">
+    <h1>Bảng kết quả bài làm</h1>
+    <p id="subtitle">Dr Henry English House<br>Nhiệm vụ: <span id="taskname"></span></p>
+  </div>
+  <div class="property-grid" id="table-container"></div>
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Hàm giải mã URL parameter
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+            const results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        // Hàm tạo bảng từ dữ liệu và sắp xếp theo Tích lũy
+        function renderTable(data) {
+            /*
+            if (!data) {
+                document.getElementById('table-container').innerHTML = 
+                    '<div class="error-message">Không có dữ liệu hiển thị. Vui lòng truyền dữ liệu qua URL parameter ?data=</div>';
+                return;
+            }*/
+
+            try {
+                const apiURL='https://sheets.googleapis.com/v4/spreadsheets/1rHTPzsPTu6Dj_EbM-9hCi6aPolQ2jEdKmTU2WlScDNc/values/LB?alt=json&key=AIzaSyA6HNtdv0sKdpXRsZ554tU4WrKgESplqVo';
+                const contestAPI='https://sheets.googleapis.com/v4/spreadsheets/1rHTPzsPTu6Dj_EbM-9hCi6aPolQ2jEdKmTU2WlScDNc/values/LB?alt=json&key=AIzaSyA6HNtdv0sKdpXRsZ554tU4WrKgESplqVo&range=Input!B3';
+                fetch(apiURL, {method: 'GET'})
+                    .then(response => response.text()) // hoặc .json() nếu trả về JSON
+                    .then(data => {
+                        const info = JSON.parse(data).values;
+                        //const qrContent = info.data.qrCode;
+                        console.log(info);
+                        let tableHTML = ``;
+
+                        info.forEach((row, index) => {
+                            const rankClass = index === 0 ? 'gold' : 
+                                            index === 1 ? 'silver' : 
+                                            index === 2 ? 'bronze' : '';
+                            const isTop3 = index < 3 ? 'top-3-row' : 'row';
+
+                            tableHTML += `
+                                <div class="single-property"><div class="room-label" >${row[1] || ''}</div><div class="room-status" id="room-01">${row[2] || ''}</div></div>`;
+                        });
+
+                        tableHTML += ``;
+                        document.getElementById('table-container').innerHTML = tableHTML;
+                    })
+                    .catch(error => console.error("Lỗi:", error));
+                fetch(contestAPI, {method: 'GET'})
+                    .then(response => response.text()) // hoặc .json() nếu trả về JSON
+                    .then(data => {
+                        const info = JSON.parse(data).values;
+                        //const qrContent = info.data.qrCode;
+                        var taskname = '';
+                        info.forEach((row, index) => {
+                            taskname = row[0];
+                        });
+                        document.getElementById('taskname').innerHTML = taskname;
+                    })
+                    .catch(error => console.error("Lỗi:", error));
+                
+
+                
+
+            } catch (error) {
+                document.getElementById('table-container').innerHTML = 
+                    `<div class="error-message">Lỗi hiển thị dữ liệu: ${error.message}<br>Dữ liệu nhận được: ${data}</div>`;
+            }
+        }
+
+        // Lấy dữ liệu từ URL và render bảng
+        const dataParam = getParameterByName('data');
+        renderTable(dataParam);
+  </script>
+</body>
+</html>
