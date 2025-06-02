@@ -41,6 +41,16 @@
         padding: .7rem .75rem;
         border-radius: 4rem;
     }
+    
+    .gold, .silver, .bronze, .top-3-row, .norm-row {
+        width: 100%;
+    }
+
+    .gold:hover { background: #b8860b; font-weight: bold; font-size: 28px; }
+    .silver:hover { background: #808080; font-weight: bold; font-size: 24px; }
+    .bronze:hover { background: #cd7f32; font-weight: bold; font-size: 20px; }
+    .top-3-row:hover { background: #1b7ebe; font-weight: bold;}
+    .norm-row:hover { background: #1b7ebe;}
 
     .btn-secondary {
         background-color: #1b7ebe;
@@ -173,7 +183,7 @@
         text-align: center;
     }
     .room-label{
-        color: white !important;
+        color: white;
         text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         text-align: right;
     }
@@ -227,13 +237,13 @@
                         let tableHTML = ``;
 
                         info.forEach((row, index) => {
-                            const rankClass = index === 0 ? 'gold' : 
-                                            index === 1 ? 'silver' : 
-                                            index === 2 ? 'bronze' : '';
-                            const isTop3 = index < 3 ? 'top-3-row' : 'row';
+                            const rankClass = (index === 0 ? 'gold' : 
+                                            (index === 1 ? 'silver' : 
+                                            (index === 2 ? 'bronze' : 
+                                            (index < 5 ? 'top-3-row' : 'norm-row'))));
 
                             tableHTML += `
-                                <div class="single-property"><div class="room-label" >${row[1] || ''}</div><div class="room-status" id="room-01">${row[2] || ''} ${(row[3] ==='F') ? '':  ('('+(row[3]|| '') + ')')}</div></div>`;
+                                <div class="single-property ${rankClass}"><div class="room-label" >${row[1] || ''}</div><div class="room-status">${row[2] || ''} ${(row[3] ==='F') ? '':  ('('+(row[3]|| '') + ')')}</div></div>`;
                         });
 
                         tableHTML += ``;
